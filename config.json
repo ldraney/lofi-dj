@@ -1,0 +1,14 @@
+{
+  "server": {
+    "port": 3000
+  },
+  "defaults": {
+    "song": "/lofi-demo-song/index.js",
+    "visual": "/visual-waveform/index.js",
+    "autoPlay": false
+  },
+  "display": {
+    "showControls": true,
+    "showStatus": true
+  }
+}

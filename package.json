@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Lofi DJ Overlay for OBS",
   "scripts": {
+    "start": "npx serve .. -p 3000 -C",
     "create": "node add-to-obs.js create",
     "show": "node add-to-obs.js show",
     "hide": "node add-to-obs.js hide",

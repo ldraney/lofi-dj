@@ -53,10 +53,60 @@
     const statusSection = document.getElementById('status-section');
     const statusPlaying = document.getElementById('status-playing');
 
+    // Load config
+    let config = {
+      defaults: { song: null, visual: null, autoPlay: false },
+      display: { showControls: true, showStatus: true }
+    };
+
+    try {
+      const response = await fetch('./config.json');
+      if (response.ok) {
+        config = await response.json();
+        console.log('[DJ] Config loaded:', config);
+      }
+    } catch (e) {
+      console.log('[DJ] No config.json found, using defaults');
+    }
+
+    // Apply display settings
+    if (!config.display?.showControls) {
+      document.getElementById('controls').style.display = 'none';
+    }
+    if (!config.display?.showStatus) {
+      document.getElementById('status').style.display = 'none';
+    }
+
     // Initialize on page load
     async function init() {
       await controller.init(visualContainer);
-      console.log('DJ Controller initialized');
+      console.log('[DJ] Controller initialized');
+
+      // Auto-load defaults from config
+      if (config.defaults?.song) {
+        try {
+          await controller.loadSong(config.defaults.song, 'A');
+          statusSong.textContent = config.defaults.song.split('/').filter(Boolean)[0];
+          console.log('[DJ] Auto-loaded song:', config.defaults.song);
+        } catch (e) {
+          console.error('[DJ] Failed to auto-load song:', e);
+        }
+      }
+
+      if (config.defaults?.visual) {
+        try {
+          await controller.loadVisual(config.defaults.visual, 0);
+          console.log('[DJ] Auto-loaded visual:', config.defaults.visual);
+        } catch (e) {
+          console.error('[DJ] Failed to auto-load visual:', e);
+        }
+      }
+
+      // Auto-play if configured
+      if (config.defaults?.autoPlay && config.defaults?.song) {
+        await controller.play();
+        console.log('[DJ] Auto-play started');
+      }
     }
 
     // Event listeners for status updates
