@@ -31,6 +31,13 @@ http://localhost:3000/dj-overlay/?autoplay=true&song=rainy-night
 |-------|---------|-------------|
 | `autoplay` | `?autoplay=true` | Auto-start playback on load |
 | `song` | `?song=rainy-night` | Load specific song by name |
+| `minimal` | `?minimal=true` | Hide controls, show only song + visual names |
+
+**Minimal Mode Example:**
+```
+http://localhost:3000/dj-overlay/?autoplay=true&song=rainy-night&minimal=true
+```
+Shows just the song name and visual name - perfect for clean streaming overlays.
 
 The background is transparent - only the waveform and controls will show over your stream content.
 
@@ -358,6 +365,86 @@ open http://localhost:3000/dj-overlay/?autoplay=true&song=rainy-night
 # [DJ] Auto-loaded song
 # [DJ] Auto-loaded visual
 ```
+
+---
+
+## OBS WebSocket Testing
+
+**IMPORTANT:** When testing visual changes in OBS, use OBS WebSocket (port 4455) instead of a standalone browser. This tests in the actual streaming environment.
+
+### OBS Setup
+
+The "DJ Overlay" browser source is in the "Palworld Stream" scene:
+- Source name: `DJ Overlay`
+- Default URL: `http://localhost:3000/dj-overlay/?autoplay=true`
+
+### Testing via Node.js
+
+Uses `obs-websocket-js` (already in devDependencies):
+
+```javascript
+const OBSWebSocket = require('obs-websocket-js').default;
+
+async function testInOBS() {
+  const obs = new OBSWebSocket();
+  await obs.connect('ws://localhost:4455');
+
+  // Update browser source URL
+  await obs.call('SetInputSettings', {
+    inputName: 'DJ Overlay',
+    inputSettings: {
+      url: 'http://localhost:3000/dj-overlay/?autoplay=true&minimal=true'
+    }
+  });
+
+  // Refresh the browser source
+  await obs.call('PressInputPropertiesButton', {
+    inputName: 'DJ Overlay',
+    propertyName: 'refreshnocache'
+  });
+
+  // Wait for load
+  await new Promise(r => setTimeout(r, 2000));
+
+  // Take screenshot
+  await obs.call('SaveSourceScreenshot', {
+    sourceName: 'DJ Overlay',
+    imageFormat: 'png',
+    imageFilePath: '/path/to/screenshot.png'
+  });
+
+  await obs.disconnect();
+}
+```
+
+### Common OBS WebSocket Commands
+
+```javascript
+// List all scenes
+await obs.call('GetSceneList');
+
+// Get items in a scene
+await obs.call('GetSceneItemList', { sceneName: 'Palworld Stream' });
+
+// Get browser source settings
+await obs.call('GetInputSettings', { inputName: 'DJ Overlay' });
+
+// Take screenshot of source
+await obs.call('SaveSourceScreenshot', {
+  sourceName: 'DJ Overlay',
+  imageFormat: 'png',
+  imageFilePath: 'C:/path/to/file.png'
+});
+```
+
+### Testing Workflow
+
+1. Make code changes
+2. Connect to OBS WebSocket
+3. Update browser source URL with test params
+4. Refresh the source
+5. Take screenshot to verify
+6. Screenshots save to `.playwright-mcp/` directory
 
 ## Related Repos
 

@@ -307,3 +307,66 @@ button:active {
   font-family: 'SF Mono', 'Fira Code', monospace;
   font-weight: 600;
 }
+
+/* ==================== MINIMAL MODE ==================== */
+/* Activated via ?minimal=true URL parameter */
+/* Shows only song and visual names, hides all controls */
+
+body.minimal #sidebar {
+  width: auto;
+  min-width: auto;
+  padding: 6px 10px;
+  gap: 4px;
+}
+
+body.minimal #controls {
+  display: none;
+}
+
+body.minimal #song-info {
+  background: transparent;
+  border: none;
+  padding: 0;
+  gap: 8px;
+}
+
+body.minimal #song-info .song-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+body.minimal #song-info .song-meta {
+  display: none;
+}
+
+body.minimal #song-info .now-playing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+body.minimal #status {
+  display: none;
+}
+
+/* Minimal mode visual indicator */
+body.minimal .minimal-visual-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+body.minimal .minimal-visual-name::before {
+  content: '•';
+  color: rgba(139, 92, 246, 0.8);
+}
+
+/* Hide visual name when not in minimal mode */
+.minimal-visual-name {
+  display: none;
+}

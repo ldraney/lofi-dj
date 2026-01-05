@@ -36,6 +36,7 @@
           <span class="now-playing-text">Now Playing</span>
         </div>
         <div class="song-title" id="song-title">-</div>
+        <div class="minimal-visual-name" id="visual-name"></div>
         <div class="song-description" id="song-description">Select a song to begin</div>
         <div class="song-meta">
           <div class="meta-item">
@@ -90,6 +91,7 @@
     const songSection = document.getElementById('song-section');
     const songTags = document.getElementById('song-tags');
     const nowPlayingIndicator = document.getElementById('now-playing-indicator');
+    const visualNameEl = document.getElementById('visual-name');
 
     // Dropdown elements
     const selectSong = document.getElementById('select-song');
@@ -123,6 +125,14 @@
       }
     } catch (e) {
       console.log('[DJ] No registry.json found');
+    }
+
+    // Update visual name display (for minimal mode)
+    function updateVisualName(visualPath) {
+      const visualEntry = registry.visuals.find(v => visualPath.includes(v.path));
+      if (visualEntry) {
+        visualNameEl.textContent = visualEntry.name;
+      }
     }
 
     // Load and display song metadata
@@ -215,16 +225,23 @@
         try {
           await controller.loadVisual(config.defaults.visual, 0);
           selectVisual.value = config.defaults.visual;
+          updateVisualName(config.defaults.visual);
           console.log('[DJ] Auto-loaded visual:', config.defaults.visual);
         } catch (e) {
           console.error('[DJ] Failed to auto-load visual:', e);
         }
       }
 
-      // Check URL params for autoplay
+      // Check URL params
       const urlParams = new URLSearchParams(window.location.search);
       const autoplayParam = urlParams.get('autoplay') === 'true';
       const songParam = urlParams.get('song');
+      const minimalParam = urlParams.get('minimal') === 'true';
+
+      // Apply minimal mode
+      if (minimalParam) {
+        document.body.classList.add('minimal');
+      }
 
       // If song specified in URL, load it
       if (songParam) {
@@ -292,6 +309,7 @@
       if (!path) return;
       try {
         await controller.loadVisual(path, 0);
+        updateVisualName(path);
         const visualName = path.split('/').filter(Boolean)[0];
         console.log('[DJ] Loaded visual:', visualName);
       } catch (e) {
