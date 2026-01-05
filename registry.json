@@ -36,6 +36,20 @@
       "description": "Nostalgic lofi for golden hour cruising - warm Rhodes chords, mellow bass, laid-back drums"
     },
     {
+      "name": "midnight-cafe",
+      "path": "/lofi-midnight-cafe-song",
+      "status": "ready",
+      "created": "2026-01-05",
+      "description": "Chromatic descent lofi (Ebmaj7->Dm7->Dbmaj7->Cm7) - wurlitzer with tremolo, vinyl crackle ambience"
+    },
+    {
+      "name": "neon-dreams",
+      "path": "/lofi-neon-dreams-song",
+      "status": "ready",
+      "created": "2026-01-05",
+      "description": "Futuristic city lofi (Fm9->Dbmaj7->Abmaj7->Eb7) - arpeggiated synths, 82 BPM, highest tempo"
+    },
+    {
       "name": "template",
       "path": "/lofi-song-template",
       "status": "template",
@@ -71,6 +85,27 @@
       "status": "ready",
       "created": "2026-01-04",
       "description": "Aurora borealis with flowing ribbon bands, audio-reactive colors and sparkle effects"
+    },
+    {
+      "name": "neon-rain",
+      "path": "/visual-neon-rain",
+      "status": "deprecated",
+      "created": "2026-01-05",
+      "description": "Cyberpunk-inspired neon rain with reflections and city glow"
+    },
+    {
+      "name": "flow-field",
+      "path": "/visual-flow-field",
+      "status": "ready",
+      "created": "2026-01-05",
+      "description": "Organic particle flow driven by Perlin noise - creates river-like movement"
+    },
+    {
+      "name": "neon-grid",
+      "path": "/visual-neon-grid",
+      "status": "ready",
+      "created": "2026-01-05",
+      "description": "Cyberpunk perspective grid with frequency bars, floating shapes, and glitch effects - pairs with neon-dreams"
     },
     {
       "name": "template",

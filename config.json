@@ -3,8 +3,8 @@
     "port": 3000
   },
   "defaults": {
-    "song": "/lofi-sunset-drive-song/index.js",
-    "visual": "/visual-aurora/index.js",
+    "song": "/lofi-neon-dreams-song/index.js",
+    "visual": "/visual-neon-grid/index.js",
     "autoPlay": false
   },
   "display": {
