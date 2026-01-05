@@ -1,21 +1,23 @@
-# DJ Overlay - Claude Guide
+# Lofi DJ - Claude Guide
 
 The controller for the lofi music + visuals ecosystem. Manages song playback, visual rendering, and crossfading.
+
+**This repo owns the interface contracts.** Songs and visuals implement these interfaces to work with the DJ.
 
 ## Quick Start
 
 ```bash
-cd ~/dj-overlay
+cd ~/lofi-dj
 npm start
 # Server runs at http://localhost:3000
-# Open http://localhost:3000/dj-overlay/ in browser
+# Open http://localhost:3000/lofi-dj/ in browser
 ```
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         dj-overlay                               │
+│                           lofi-dj                                │
 ├─────────────────────────────────────────────────────────────────┤
 │  ┌──────────┐     ┌──────────┐                                  │
 │  │  Deck A  │     │  Deck B  │     Song Instances                │
@@ -42,10 +44,154 @@ npm start
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+## The Ecosystem
+
+```
+~/
+├── lofi-dj/                  # THIS REPO - Controller + Interface Contracts
+├── lofi-demo-song/           # Song implementation
+├── lofi-*-song/              # More songs...
+├── visual-waveform/          # Visual implementation
+├── visual-*/                 # More visuals...
+├── lofi-development-docs/    # Deep Tone.js guides
+└── lofi-visuals-docs/        # Deep Canvas guides
+```
+
+Songs and visuals are sibling directories. `npm start` serves from `~/` so all paths resolve.
+
+---
+
+## Interface Contracts
+
+### Song Interface
+
+Songs must implement these methods:
+
+```javascript
+class MySong {
+  constructor() {
+    this.name = 'my-song';
+  }
+
+  // Required
+  async init()           // Initialize instruments and patterns
+  async play()           // Start playback
+  pause()                // Pause playback
+  stop()                 // Stop and reset to beginning
+  getState()             // Returns songState object (see below)
+  getMasterOutput()      // Returns Tone.js node for audio routing
+  dispose()              // Cleanup all resources
+
+  // Events
+  on(event, callback)    // Subscribe to events
+  off(event, callback)   // Unsubscribe
+
+  // Optional
+  jumpToSection(name)    // Jump to named section
+  muteTrack(name)        // Mute a track
+  unmuteTrack(name)      // Unmute a track
+  setTempo(bpm)          // Change tempo
+}
+
+// Events to emit:
+// - 'sectionChange' (sectionName)
+// - 'bar' (barNumber)
+```
+
+### Visual Interface
+
+Visuals must implement these methods:
+
+```javascript
+class MyVisual {
+  constructor() {
+    this.name = 'my-visual';
+    this.description = 'What this visual does';
+  }
+
+  // Required
+  init(canvas)                      // Receive canvas, set up context
+  render(audioData, songState)      // Called every frame (~60fps)
+  dispose()                         // Cleanup
+
+  // Optional
+  onSectionChange(section)          // React to section changes
+  setOption(key, value)             // Configure visual
+  getOptions()                      // Return current options
+}
+```
+
+### Data Shapes
+
+```javascript
+// audioData (passed to visual.render() each frame)
+{
+  frequencyData: Float32Array,  // 1024 FFT bins, -100 to 0 dB
+  waveformData: Float32Array,   // 1024 samples, -1 to 1
+  volume: number                // RMS level, 0 to 1
+}
+
+// songState (passed to visual.render() each frame)
+{
+  section: string,    // "intro" | "verse" | "climax" | "outro"
+  bar: number,        // Current bar number
+  beat: number,       // Beat within bar (0-3)
+  bpm: number,        // Tempo (typically 70-85 for lofi)
+  isPlaying: boolean
+}
+```
+
+---
+
+## Creating a New Song
+
+1. **Create repo**: `mkdir ~/lofi-my-song && cd ~/lofi-my-song && git init`
+2. **Copy structure** from `~/lofi-demo-song/`:
+   ```
+   lofi-my-song/
+   ├── index.js        # Song class (default export)
+   └── manifest.json   # Metadata
+   ```
+3. **Implement Song interface** (see above)
+4. **Test**: Update `config.json` → `"song": "/lofi-my-song/index.js"`
+5. **Reference**: `~/lofi-development-docs/` for Tone.js patterns and lofi theory
+
+### Song Checklist
+- [ ] Exports default class implementing Song interface
+- [ ] `getState()` returns correct shape
+- [ ] `getMasterOutput()` returns Tone.js node
+- [ ] Emits `sectionChange` event when section changes
+- [ ] `dispose()` cleans up all Tone.js objects
+
+---
+
+## Creating a New Visual
+
+1. **Create repo**: `mkdir ~/visual-my-visual && cd ~/visual-my-visual && git init`
+2. **Copy structure** from `~/visual-template/`:
+   ```
+   visual-my-visual/
+   ├── index.js        # Visual class (default export)
+   ├── manifest.json   # Metadata
+   └── demo.html       # Standalone test (optional)
+   ```
+3. **Implement Visual interface** (see above)
+4. **Test**: Update `config.json` → `"visual": "/visual-my-visual/index.js"`
+5. **Reference**: `~/lofi-visuals-docs/` for Canvas patterns and audio-reactive techniques
+
+### Visual Checklist
+- [ ] Exports default class implementing Visual interface
+- [ ] `render()` accepts `(audioData, songState)`
+- [ ] Handles missing/empty audio data gracefully
+- [ ] `dispose()` cleans up canvas references
+- [ ] Responds to different sections (optional but recommended)
+
+---
+
 ## File Structure
 
 ```
-dj-overlay/
+lofi-dj/
 ├── index.html          # Main UI shell
 ├── config.json         # Default song/visual, display settings
 ├── styles.css          # UI styling
@@ -73,27 +219,6 @@ dj-overlay/
 }
 ```
 
-- `defaults.song` - Auto-loads this song on page load
-- `defaults.visual` - Auto-loads this visual on page load
-- `defaults.autoPlay` - If true, starts playback automatically (needs user gesture in browser)
-- `display.showControls` - Show/hide the button bar
-- `display.showStatus` - Show/hide the status bar
-
-## The Ecosystem
-
-```
-~/
-├── dj-overlay/           # THIS REPO - Controller
-├── lofi-demo-song/       # Song implementation
-├── lofi-*-song/          # More songs...
-├── visual-waveform/      # Visual implementation
-├── visual-*/             # More visuals...
-├── lofi-development-docs/    # Song development docs
-└── lofi-visuals-docs/        # Visual development docs
-```
-
-Songs and visuals are sibling directories. `npm start` serves from `~/` so all paths resolve.
-
 ## DJController API
 
 ```javascript
@@ -120,28 +245,6 @@ controller.setTempo(85);
 controller.getState();  // { activeDeck, deckA, deckB, visuals, isPlaying }
 ```
 
-## Audio Data (passed to visuals each frame)
-
-```javascript
-{
-  frequencyData: Float32Array,  // 1024 FFT bins, -100 to 0 dB
-  waveformData: Float32Array,   // 1024 samples, -1 to 1
-  volume: number                // Meter reading
-}
-```
-
-## Song State (passed to visuals each frame)
-
-```javascript
-{
-  section: string,    // "intro" | "verse" | "climax" | "outro"
-  bar: number,        // Current bar
-  beat: number,       // Beat within bar (0-3)
-  bpm: number,        // Tempo
-  isPlaying: boolean
-}
-```
-
 ## Event Bus
 
 ```javascript
@@ -162,20 +265,6 @@ bus.on('visualLoaded', ({ name, layer }) => { });
 bus.emit('eventName', data);
 ```
 
-## Adding a New Song
-
-1. Create `~/lofi-new-song/` directory
-2. Implement the Song interface (see lofi-development-docs)
-3. Update config.json: `"song": "/lofi-new-song/index.js"`
-4. Refresh the overlay
-
-## Adding a New Visual
-
-1. Clone `~/visual-template/` to `~/visual-my-visual/`
-2. Implement your visual (see lofi-visuals-docs)
-3. Update config.json: `"visual": "/visual-my-visual/index.js"`
-4. Refresh the overlay
-
 ## Development
 
 ```bash
@@ -183,7 +272,7 @@ bus.emit('eventName', data);
 npm start
 
 # Test in browser
-open http://localhost:3000/dj-overlay/
+open http://localhost:3000/lofi-dj/
 
 # Check console for logs:
 # [DJ] Config loaded
@@ -194,6 +283,5 @@ open http://localhost:3000/dj-overlay/
 
 ## Related Repos
 
-- `~/lofi-development-docs/` - Tone.js + lofi music theory
-- `~/lofi-visuals-docs/` - Canvas + audio-reactive visuals
-- `~/lofi-development-docs/mapping/` - Interface specifications
+- `~/lofi-development-docs/` - Deep Tone.js guides + lofi music theory
+- `~/lofi-visuals-docs/` - Deep Canvas guides + audio-reactive techniques
