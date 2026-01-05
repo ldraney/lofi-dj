@@ -4,5 +4,8 @@
   "description": "Lofi DJ Controller",
   "scripts": {
     "start": "npx serve .. -p 3000 -C"
+  },
+  "devDependencies": {
+    "obs-websocket-js": "^5.0.7"
   }
 }
