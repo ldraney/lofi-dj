@@ -1,7 +1,7 @@
 {
-  "name": "dj-overlay",
-  "displayName": "DJ Overlay Controller",
-  "version": "0.1.0",
-  "description": "Controller for the distributed lofi system",
+  "name": "lofi-dj",
+  "displayName": "Lofi DJ",
+  "version": "1.0.0",
+  "description": "Controller for the lofi music + visuals ecosystem",
   "entry": "index.html"
 }
