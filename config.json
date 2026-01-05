@@ -3,7 +3,7 @@
     "port": 3000
   },
   "defaults": {
-    "song": "/lofi-demo-song/index.js",
+    "song": "/lofi-sunset-drive-song/index.js",
     "visual": "/visual-aurora/index.js",
     "autoPlay": false
   },
